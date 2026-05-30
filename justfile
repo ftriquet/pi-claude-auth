@@ -40,7 +40,14 @@ validate-oauth-dry: build
 # Lint + build + test
 all: lint build test
 
-# Preview next release: version + changelog, no publish, no tag, no push
+# Trigger the release CI workflow on main via GitHub Actions.
+# Runs the full quality gate (lint → build → test) before publishing.
+# Requires `gh` CLI authenticated. semantic-release decides the version
+# from commits since the last tag — nothing ships if there's nothing new.
+release:
+    gh workflow run release.yml --ref main
+
+# Preview next release: version + changelog, no publish, no tag, no push.
 # Requires GITHUB_TOKEN and NPM_TOKEN env vars to verify credentials.
 release-dry:
     pnpm exec semantic-release --dry-run

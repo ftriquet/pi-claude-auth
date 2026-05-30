@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - main
+    workflow_dispatch: # allow manual trigger via `just release` or GitHub UI
 
 # Allow only one concurrent release run; do not cancel an in-flight publish.
 concurrency:
