@@ -2,31 +2,27 @@ name: Release
 
 on:
     push:
-        branches:
-            - main
-    workflow_dispatch: # allow manual trigger via `just release` or GitHub UI
+        tags:
+            - "v[0-9]+.[0-9]+.[0-9]+" # only publish on valid semver tags
 
-# Allow only one concurrent release run; do not cancel an in-flight publish.
+# Allow only one concurrent release; never cancel an in-flight publish.
 concurrency:
     group: release-${{ github.ref }}
     cancel-in-progress: false
 
 permissions:
-    contents: write # create tags, commits, and GitHub releases
-    issues: write # comment on released issues
-    pull-requests: write # comment on released PRs
+    contents: write # create GitHub releases
     id-token: write # npm provenance via OIDC
 
 jobs:
-    release:
-        name: Release
+    publish:
+        name: Publish
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v4
               with:
-                  fetch-depth: 0 # full history + tags for semantic-release
-                  persist-credentials: false
+                  fetch-depth: 0 # full history so --generate-notes spans all commits
 
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
@@ -50,10 +46,16 @@ jobs:
             - name: Test
               run: pnpm test
 
-            - name: Release
+            - name: Publish to npm
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
                   NPM_CONFIG_PROVENANCE: "true"
-              run: pnpm exec semantic-release
+              run: pnpm publish --no-git-checks
+
+            - name: Create GitHub Release
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh release create "${{ github.ref_name }}" \
+                    --title "${{ github.ref_name }}" \
+                    --generate-notes
