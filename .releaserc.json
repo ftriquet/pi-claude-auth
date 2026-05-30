@@ -2,8 +2,46 @@
     "branches": ["main"],
     "tagFormat": "v${version}",
     "plugins": [
-        "@semantic-release/commit-analyzer",
-        "@semantic-release/release-notes-generator",
+        [
+            "@semantic-release/commit-analyzer",
+            {
+                "parserOpts": {
+                    "headerPattern": "^(\\S+)\\s+(.*)",
+                    "headerCorrespondence": ["type", "subject"]
+                },
+                "releaseRules": [
+                    { "type": "✨", "release": "minor" },
+                    { "type": "🐛", "release": "patch" },
+                    { "type": "🚑", "release": "patch" },
+                    { "type": "🔒", "release": "patch" },
+                    { "type": "⚡", "release": "patch" },
+                    { "type": "💥", "release": "major" },
+                    { "type": "feat", "release": "minor" },
+                    { "type": "fix", "release": "patch" }
+                ]
+            }
+        ],
+        [
+            "@semantic-release/release-notes-generator",
+            {
+                "parserOpts": {
+                    "headerPattern": "^(\\S+)\\s+(.*)",
+                    "headerCorrespondence": ["type", "subject"]
+                },
+                "presetConfig": {
+                    "types": [
+                        { "type": "✨", "section": "Features" },
+                        { "type": "🐛", "section": "Bug Fixes" },
+                        { "type": "🚑", "section": "Hot Fixes" },
+                        { "type": "💥", "section": "Breaking Changes" },
+                        { "type": "🔒", "section": "Security" },
+                        { "type": "⚡", "section": "Performance Improvements" },
+                        { "type": "feat", "section": "Features" },
+                        { "type": "fix", "section": "Bug Fixes" }
+                    ]
+                }
+            }
+        ],
         [
             "@semantic-release/changelog",
             {
@@ -21,7 +59,7 @@
             "@semantic-release/git",
             {
                 "assets": ["package.json", "CHANGELOG.md"],
-                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+                "message": "🔖 Release ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
             }
         ],
         "@semantic-release/github"

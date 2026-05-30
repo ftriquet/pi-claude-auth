@@ -39,3 +39,8 @@ validate-oauth-dry: build
 
 # Lint + build + test
 all: lint build test
+
+# Preview next release: version + changelog, no publish, no tag, no push
+# Requires GITHUB_TOKEN and NPM_TOKEN env vars to verify credentials.
+release-dry:
+    pnpm exec semantic-release --dry-run
