@@ -9,9 +9,10 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 max_line_length = 80
 
-# Makefiles require literal tabs for recipe lines.
-[Makefile]
-indent_style = tab
+# justfile uses 4-space indentation for recipe bodies.
+[justfile]
+indent_style = space
+indent_size = 4
 
 # Markdown trailing whitespace is significant (hard line breaks).
 [*.md]
