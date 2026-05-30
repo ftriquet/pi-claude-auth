@@ -1,5 +1,7 @@
 # Changelog
 
+# [0.1.0](https://github.com/pankajudhas81/pi-claude-auth/compare/v0.0.1...v0.1.0) (2026-05-30)
+
 ## 0.0.1
 
 ### Features
