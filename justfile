@@ -41,6 +41,7 @@ validate-oauth-dry: build
 all: lint build test
 
 # Bump version, tag, and push. CI publishes to npm automatically.
+# npm version creates an annotated tag + commit; --follow-tags pushes both.
 # Usage: just release 0.1.2
 release version:
     npm version {{version}} --message "🔖 Release %s"
