@@ -16,6 +16,7 @@ import {
 } from "./credentials.ts"
 import { readAllClaudeAccounts, type ClaudeAccount } from "./keychain.ts"
 import { initLogger, log } from "./logger.ts"
+import { injectBillingHeader } from "./transforms.ts"
 
 export {
     getCachedCredentials,
@@ -180,6 +181,40 @@ const extension = async (pi: ExtensionAPI): Promise<void> => {
     }
 
     pi.registerProvider(PROVIDER_ID, { oauth })
+
+    // Inject the Claude Code billing header so requests bill against the
+    // Claude Pro/Max subscription rather than pay-as-you-go API credits.
+    // pi's built-in Anthropic provider supplies the identity, betas, and
+    // user-agent for OAuth tokens but not this header.
+    pi.on("before_provider_request", (event) => {
+        try {
+            const pl = event.payload as {
+                model?: unknown
+                system?: unknown
+                messages?: unknown
+            }
+            log("bpr_fired", {
+                model: String(pl?.model),
+                systemIsArray: Array.isArray(pl?.system),
+                systemLen: Array.isArray(pl?.system)
+                    ? pl.system.length
+                    : -1,
+                system0: Array.isArray(pl?.system)
+                    ? JSON.stringify(pl.system[0]).slice(0, 80)
+                    : "n/a",
+            })
+            const updated = injectBillingHeader(event.payload)
+            if (updated) {
+                log("billing_header_injected", {})
+                return updated
+            }
+        } catch (err) {
+            log("billing_header_error", {
+                error: err instanceof Error ? err.message : String(err),
+            })
+        }
+        return undefined
+    })
 
     log("provider_registered", { provider: PROVIDER_ID })
 }
