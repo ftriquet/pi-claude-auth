@@ -28,8 +28,11 @@
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "import": "./src/index.ts"
+            "import": "./dist/index.js"
         }
+    },
+    "publishConfig": {
+        "access": "public"
     },
     "scripts": {
         "build": "tsc",
@@ -39,13 +42,17 @@
         "lint": "oxlint && oxfmt --check .",
         "lint:fix": "oxlint --fix . && oxfmt --write .",
         "format": "oxfmt --write .",
-        "prepublishOnly": "pnpm run build && pnpm test"
+        "prepublishOnly": "pnpm run build && pnpm test",
+        "release": "semantic-release"
     },
     "devDependencies": {
         "@earendil-works/pi-coding-agent": "latest",
+        "@semantic-release/changelog": "6.0.3",
+        "@semantic-release/git": "10.0.1",
         "@types/node": "^25.5.0",
         "oxfmt": "0.41.0",
         "oxlint": "1.56.0",
+        "semantic-release": "25.0.3",
         "typescript": "^5.0.0"
     },
     "peerDependencies": {
