@@ -1,7 +1,7 @@
 import {
     buildBillingHeaderValue,
-    CC_ENTRYPOINT,
     getCliVersion,
+    getEntrypoint,
 } from "./signing.ts"
 
 const BILLING_PREFIX = "x-anthropic-billing-header"
@@ -73,7 +73,7 @@ export function injectBillingHeader(
     const billingHeader = buildBillingHeaderValue(
         messages,
         getCliVersion(),
-        CC_ENTRYPOINT,
+        getEntrypoint(),
     )
 
     // Billing header goes first, ahead of pi's identity block. No

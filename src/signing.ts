@@ -2,14 +2,38 @@ import { createHash } from "node:crypto"
 
 const BILLING_SALT = "59cf53e54c78"
 
-// Claude Code CLI version used for the billing header. Must match the version
-// pi sends in the `user-agent: claude-cli/<version>` header so Anthropic's
-// subscription billing validation accepts the request. Overridable via
-// ANTHROPIC_CLI_VERSION if pi's bundled version drifts.
-export const CC_VERSION = "2.1.75"
+// Claude Code CLI version used for the billing header AND the overridden
+// user-agent. The billing header's cc_version must match the user-agent
+// version for Anthropic's subscription-billing validation to route the request
+// to the Claude Pro/Max plan instead of pay-as-you-go / extra usage.
+// Overridable via ANTHROPIC_CLI_VERSION.
+export const CC_VERSION = "2.1.112"
 
-// Matches pi's `x-app: cli` identity (real Claude Code CLI entrypoint).
-export const CC_ENTRYPOINT = "cli"
+// Billing entrypoint, mirrored in the user-agent's `(external, <entrypoint>)`
+// suffix. Overridable via CLAUDE_CODE_ENTRYPOINT.
+export const CC_ENTRYPOINT = "sdk-cli"
+
+/** Resolve the Claude Code CLI version (env override wins). */
+export function getCliVersion(): string {
+    return process.env.ANTHROPIC_CLI_VERSION ?? CC_VERSION
+}
+
+/** Resolve the billing entrypoint (env override wins). */
+export function getEntrypoint(): string {
+    return process.env.CLAUDE_CODE_ENTRYPOINT ?? CC_ENTRYPOINT
+}
+
+/**
+ * Build the Claude Code user-agent string. pi sends a bare
+ * `claude-cli/<version>`; Anthropic's plan-billing validation expects the full
+ * `claude-cli/<version> (external, <entrypoint>)` form, so we override it.
+ */
+export function buildUserAgent(): string {
+    return (
+        process.env.ANTHROPIC_USER_AGENT ??
+        `claude-cli/${getCliVersion()} (external, ${getEntrypoint()})`
+    )
+}
 
 interface Message {
     role?: string
@@ -75,9 +99,4 @@ export function buildBillingHeaderValue(
         `cc_entrypoint=${entrypoint}; ` +
         `cch=${cch};`
     )
-}
-
-/** Resolve the Claude Code CLI version (env override wins). */
-export function getCliVersion(): string {
-    return process.env.ANTHROPIC_CLI_VERSION ?? CC_VERSION
 }
