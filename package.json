@@ -1,6 +1,6 @@
 {
     "name": "pi-claude-auth",
-    "version": "0.1.0",
+    "version": "0.0.1",
     "description": "Pi coding agent extension that uses your Claude Code credentials — no separate login needed.",
     "keywords": [
         "anthropic",
@@ -13,12 +13,13 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/ankur/pi-claude-auth.git"
+        "url": "git+https://github.com/pankajudhas81/pi-claude-auth.git"
     },
     "files": [
         "src",
         "dist",
-        "installation.md"
+        "installation.md",
+        "!src/**/*.test.ts"
     ],
     "type": "module",
     "main": "dist/index.js",
