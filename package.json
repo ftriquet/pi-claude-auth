@@ -1,0 +1,59 @@
+{
+    "name": "pi-claude-auth",
+    "version": "0.1.0",
+    "description": "Pi coding agent extension that uses your Claude Code credentials — no separate login needed.",
+    "keywords": [
+        "anthropic",
+        "auth",
+        "claude",
+        "claude-code",
+        "pi",
+        "pi-package"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ankur/pi-claude-auth.git"
+    },
+    "files": [
+        "src",
+        "dist",
+        "installation.md"
+    ],
+    "type": "module",
+    "main": "dist/index.js",
+    "module": "src/index.ts",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./src/index.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "test": "node --test --experimental-strip-types src/**/*.test.ts",
+        "test:models": "node --experimental-strip-types scripts/test-models.ts",
+        "validate:oauth": "node --experimental-strip-types scripts/validate-oauth-refresh.ts",
+        "lint": "oxlint && oxfmt --check .",
+        "lint:fix": "oxlint --fix . && oxfmt --write .",
+        "format": "oxfmt --write .",
+        "prepublishOnly": "pnpm run build && pnpm test"
+    },
+    "devDependencies": {
+        "@earendil-works/pi-coding-agent": "latest",
+        "@types/node": "^25.5.0",
+        "oxfmt": "0.41.0",
+        "oxlint": "1.56.0",
+        "typescript": "^5.0.0"
+    },
+    "peerDependencies": {
+        "@earendil-works/pi-coding-agent": "*"
+    },
+    "packageManager": "pnpm@10.32.1",
+    "pi": {
+        "extensions": [
+            "./src/index.ts"
+        ]
+    }
+}
