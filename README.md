@@ -39,7 +39,7 @@ file fallback.
 Paste this into any LLM agent (pi, Claude Code, Cursor, etc.):
 
 ```
-Install the pi-claude-auth package and configure it by following: https://raw.githubusercontent.com/ankur/pi-claude-auth/main/installation.md
+Install the pi-claude-auth package and configure it by following: https://raw.githubusercontent.com/pankajudhas81/pi-claude-auth/main/installation.md
 ```
 
 **Option B: Install as a pi package**
@@ -200,6 +200,16 @@ write-back is enabled by default to keep your stored credentials valid.
   and tool-name conventions for OAuth tokens, so requests look like Claude Code
 - If credentials aren't OAuth-based or can't be read, the extension disables
   itself and pi continues with its standard Anthropic auth
+
+## Acknowledgements
+
+This project is motivated by and shamelessly copies patterns from
+[opencode-claude-auth](https://github.com/griffinmartin/opencode-claude-auth)
+by Griffin Martin. That project solved the same problem for
+[opencode](https://github.com/nichochar/opencode) — reusing Claude Code OAuth
+credentials so you don't need a separate login. We adopted the same approach
+(Keychain reading, token refresh, credential seeding) and adapted it for pi's
+extension API.
 
 ## Disclaimer
 
