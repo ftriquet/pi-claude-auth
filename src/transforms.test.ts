@@ -61,3 +61,27 @@ test("injectBillingHeader: undefined when messages are missing", () => {
     }
     assert.equal(injectBillingHeader(payload), undefined)
 })
+
+test("injectBillingHeader: relocates non-core system entries to first user message", () => {
+    const payload = {
+        model: "claude-sonnet-4-6",
+        system: [
+            { type: "text", text: IDENTITY },
+            { type: "text", text: "You are a helpful coding agent." },
+            { type: "text", text: "Always respond in English." },
+        ],
+        messages: [{ role: "user", content: "hello" }],
+    }
+    const out = injectBillingHeader(payload)
+    assert.ok(out)
+    const system = out.system as Array<{ text: string }>
+    // Only billing header + identity should remain in system[]
+    assert.equal(system.length, 2)
+    assert.match(system[0].text, /^x-anthropic-billing-header:/)
+    assert.equal(system[1].text, IDENTITY)
+    // Non-core entries should be prepended to first user message
+    const msgs = out.messages as Array<{ role: string; content: string }>
+    assert.ok(msgs[0].content.includes("You are a helpful coding agent."))
+    assert.ok(msgs[0].content.includes("Always respond in English."))
+    assert.ok(msgs[0].content.includes("hello"))
+})

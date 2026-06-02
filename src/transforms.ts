@@ -79,5 +79,45 @@ export function injectBillingHeader(
     // Billing header goes first, ahead of pi's identity block. No
     // cache_control so it does not consume a cache breakpoint.
     p.system = [{ type: "text", text: billingHeader }, ...system]
+
+    // Relocate non-core system entries to user messages.
+    // Anthropic's API validates the system prompt for OAuth-authenticated
+    // requests that use Claude Code billing.  Third-party system prompts
+    // (like pi's) trigger a 400 "out of extra usage" rejection when
+    // they appear inside the system[] array alongside the identity prefix.
+    //
+    // Work-around: keep only the billing header and identity prefix in
+    // system[], and prepend all other system content to the first user
+    // message where it is functionally equivalent but avoids the check.
+    const keptSystem: SystemEntry[] = []
+    const movedTexts: string[] = []
+    for (const entry of p.system as SystemEntry[]) {
+        const txt = entryText(entry)
+        if (txt.startsWith(BILLING_PREFIX) || txt.startsWith(CC_IDENTITY)) {
+            keptSystem.push(entry)
+        } else if (txt.length > 0) {
+            movedTexts.push(txt)
+        }
+    }
+
+    if (movedTexts.length > 0) {
+        const firstUser = (
+            p.messages as Array<{
+                role?: string
+                content?: string | Array<{ type?: string; text?: string }>
+            }>
+        ).find((m) => m.role === "user")
+        if (firstUser) {
+            p.system = keptSystem
+            const prefix = movedTexts.join("\n\n")
+            const content = firstUser.content
+            if (typeof content === "string") {
+                firstUser.content = prefix + "\n\n" + content
+            } else if (Array.isArray(content)) {
+                content.unshift({ type: "text", text: prefix })
+            }
+        }
+    }
+
     return p
 }
